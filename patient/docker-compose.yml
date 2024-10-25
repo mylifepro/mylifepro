@@ -1,0 +1,52 @@
+version: '3.3'
+services:
+  patient-service:
+    build: .
+    container_name: patient-service
+    ports:
+      - "5001:5001"
+    environment:
+      POSTGRES_HOST: postgres_PatientService
+      POSTGRES_PORT: 5433
+      POSTGRES_USER: tool
+      POSTGRES_PASSWORD: t00l.302
+      POSTGRES_DB: account
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5673
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_QUEUE: patient_created
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - connexion
+  postgres:
+    image: postgres:latest
+    container_name: postgres_PatientService
+    environment:
+      POSTGRES_USER: tool
+      POSTGRES_PASSWORD: t00l.302
+      POSTGRES_DB: account
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - connexion
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5673:5672"  # Port pour la communication AMQP
+      - "15672:15672" # Port pour la gestion Web
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+
+volumes:
+  postgres-data:
+networks:
+  connexion:
+    external: true
